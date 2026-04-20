@@ -1,6 +1,7 @@
 package com.alk.transactions.infrastructure.config;
 
 import com.alk.transactions.application.usecase.CreateTransactionUseCase;
+import com.alk.transactions.application.usecase.GetTransactionSumUseCase;
 import com.alk.transactions.application.usecase.GetTransactionsByTypeUseCase;
 import com.alk.transactions.domain.repository.TransactionRepository;
 import com.alk.transactions.infrastructure.repository.InMemoryTransactionRepository;
@@ -23,5 +24,10 @@ public class TransactionBeansConfig {
   @Bean
   public GetTransactionsByTypeUseCase getTransactionsByTypeUseCase(TransactionRepository transactionRepository) {
     return new GetTransactionsByTypeUseCase(transactionRepository);
+  }
+
+  @Bean
+  public GetTransactionSumUseCase getTransactionSumUseCase(TransactionRepository transactionRepository) {
+    return new GetTransactionSumUseCase(transactionRepository);
   }
 }
