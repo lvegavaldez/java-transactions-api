@@ -4,8 +4,6 @@ import com.alk.transactions.application.usecase.CreateTransactionUseCase;
 import com.alk.transactions.application.usecase.GetTransactionSumUseCase;
 import com.alk.transactions.application.usecase.GetTransactionsByTypeUseCase;
 import java.util.List;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,21 +27,15 @@ public class TransactionController {
   }
 
   @PutMapping("/transactions/{transactionId}")
-  public ResponseEntity<StatusResponse> createTransaction(
+  public StatusResponse createTransaction(
       @PathVariable Long transactionId,
       @RequestBody CreateTransactionRequest request) {
-    try {
-      createTransactionUseCase.execute(
-          transactionId,
-          request.amount(),
-          request.type(),
-          request.parent_id());
-      return ResponseEntity.ok(new StatusResponse("ok"));
-    } catch (CreateTransactionUseCase.TransactionAlreadyExistsException ex) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).build();
-    } catch (CreateTransactionUseCase.ParentTransactionNotFoundException ex) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
+    createTransactionUseCase.execute(
+        transactionId,
+        request.amount(),
+        request.type(),
+        request.parent_id());
+    return new StatusResponse("ok");
   }
 
   @GetMapping("/transactions/types/{type}")
@@ -52,13 +44,9 @@ public class TransactionController {
   }
 
   @GetMapping("/transactions/sum/{transactionId}")
-  public ResponseEntity<?> getTransactionSum(@PathVariable Long transactionId) {
-    try {
-      double sum = getTransactionSumUseCase.execute(transactionId);
-      return ResponseEntity.ok(new SumResponse(sum));
-    } catch (GetTransactionSumUseCase.TransactionNotFoundException ex) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(ex.getMessage()));
-    }
+  public SumResponse getTransactionSum(@PathVariable Long transactionId) {
+    double sum = getTransactionSumUseCase.execute(transactionId);
+    return new SumResponse(sum);
   }
 
   public record CreateTransactionRequest(Double amount, String type, Long parent_id) {}
@@ -66,6 +54,4 @@ public class TransactionController {
   public record StatusResponse(String status) {}
 
   public record SumResponse(Double sum) {}
-
-  public record ErrorResponse(String message) {}
 }
